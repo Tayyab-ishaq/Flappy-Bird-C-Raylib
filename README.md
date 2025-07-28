@@ -45,8 +45,6 @@ flappybirdraylib/
 │   └── background.png
 ├── README.md
 └── ...
-📷 Screenshot:
-<img width="1132" height="706" alt="image" src="https://github.com/user-attachments/assets/cd2dfa61-9163-42d2-b840-1eee640ac8c2" />
 👨‍💻 Author
 GitHub: @Tayyab-ishaq
 Project: Flappy Bird Raylib
