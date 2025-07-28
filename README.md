@@ -3,7 +3,8 @@
 This is a simple Flappy Bird clone built using the C programming language and the Raylib game development library.
 It features smooth gameplay, obstacle pipes, score tracking, and simple sound effects.
 
-🎮 Features
+🎮 Features:
+
 2D side-scrolling Flappy Bird-style gameplay
 
 Gravity and flap controls
@@ -17,6 +18,7 @@ Game over and restart functionality
 Background and sound support included
 
 🛠️ Technologies Used
+
 Language: C
 
 Graphics Library: Raylib
@@ -35,17 +37,34 @@ Make sure Raylib is properly installed and linked.
 Example (using GCC):
 gcc -o flappy flappy.c -lraylib -lwinmm -lgdi32
 ./flappy
+
 📁 Folder Structure
+
 flappybirdraylib/
+
 │
-├── flappy.c           # Main game logic
-├── assets/            # Images and sounds
+
+├── flappy.c
+
+# Main game logic
+
+├── assets/
+
+# Images and sounds
+
 │   ├── bird.png
+
 │   ├── pipe.png
+
 │   └── background.png
+
 ├── README.md
+
 └── ...
-👨‍💻 Author
+
+👨‍💻 Author:
+
 GitHub: @Tayyab-ishaq
+
 Project: Flappy Bird Raylib
 
