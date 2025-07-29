@@ -13,7 +13,7 @@ Pipe obstacle generation
 
 Collision detection
 
-Game over and restart functionality
+Game over,restart functionality and a pause button
 
 Background and sound support included
 
