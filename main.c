@@ -169,7 +169,11 @@ int main()
 #include <time.h>
 
 Texture2D birdTex;
+Texture2D pipeTex;
 Texture2D bgTex;
+Texture2D pauseIcon;
+Texture2D restartIcon;
+Texture2D gameOverIcon;
 Sound wingSound;
 Sound swooshSound;
 Sound pointSound;
@@ -183,7 +187,7 @@ Sound dieSound;
 #define PIPE_GAP 150
 #define PIPE_COUNT 3
 #define PIPE_SPACING 300
-#define WOOD (Color){139, 69, 19, 255}
+#define GREENP (Color){139, 69, 19, 255}
 
 typedef struct
 {
@@ -198,7 +202,7 @@ typedef struct
 static Bird bird;
 static Pipe pipes[PIPE_COUNT];
 static int score = 0;
-
+static bool paused = false;
 void InitGame()
 {
     bird.x = 100;
@@ -232,7 +236,13 @@ void ResetPipe(Pipe *p)
 
 void UpdateGame()
 {
-    if (bird.alive)
+    if (IsKeyPressed(KEY_P))
+    {
+        paused = !paused;
+        PlaySound(swooshSound); // Optional: play sound on pause toggle
+    }
+
+    if (!paused && bird.alive)
     {
         if (IsKeyPressed(KEY_SPACE))
         {
@@ -260,15 +270,16 @@ void UpdateGame()
                 PlaySound(dieSound);
             }
         }
+
         if (bird.y > SCREEN_HEIGHT || bird.y < 0)
         {
             bird.alive = false;
             PlaySound(dieSound);
         }
     }
-    else if (IsKeyPressed(KEY_R))
+    else if (!paused && IsKeyPressed(KEY_R))
     {
-        PlaySound(swooshSound); // restart whoosh
+        PlaySound(swooshSound);
         InitGame();
     }
 }
@@ -277,29 +288,59 @@ void DrawGame()
 {
     ClearBackground(RAYWHITE);
     DrawTexture(bgTex, 0, 0, WHITE);
-    Vector2 birdPos = {bird.x - 25, bird.y - 18};                    // Adjust for center alignment
-    Vector2 scale = {50.0f / birdTex.width, 36.0f / birdTex.height}; // Target size: 50x36
+
+    Vector2 birdPos = {bird.x - 25, bird.y - 18};
+    Vector2 scale = {50.0f / birdTex.width, 36.0f / birdTex.height};
     DrawTextureEx(birdTex, birdPos, 0.0f, scale.x, WHITE);
 
+    float pipeScale = 0.3f; // Try 0.5f to shrink the pipe image to 50%
     for (int i = 0; i < PIPE_COUNT; i++)
     {
-        DrawRectangle(pipes[i].x, 0, PIPE_WIDTH, pipes[i].gapY, WOOD);
-        DrawRectangle(pipes[i].x, pipes[i].gapY + PIPE_GAP, PIPE_WIDTH, SCREEN_HEIGHT - pipes[i].gapY - PIPE_GAP, WOOD);
+        Rectangle sourceRec = {0, 0, pipeTex.width, pipeTex.height};
+
+        Rectangle destTop = {
+            pipes[i].x,
+            pipes[i].gapY - pipeTex.height * pipeScale,
+            pipeTex.width * pipeScale,
+            pipeTex.height * pipeScale};
+
+        Rectangle destBottom = {
+            pipes[i].x,
+            pipes[i].gapY + PIPE_GAP,
+            pipeTex.width * pipeScale,
+            pipeTex.height * pipeScale};
+
+        DrawTexturePro(pipeTex, sourceRec, destTop, (Vector2){0, 0}, 0.0f, WHITE);
+        DrawTexturePro(pipeTex, sourceRec, destBottom, (Vector2){0, 0}, 0.0f, WHITE);
     }
+
     DrawRectangle(0, SCREEN_HEIGHT - 40, SCREEN_WIDTH, 40, DARKGRAY);
     DrawText(TextFormat("Score: %d", score), 10, 10, 24, BLACK);
+
     if (!bird.alive)
     {
-        DrawText("GAME OVER", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 30, 40, RED);
-        DrawText("Press R to Restart", SCREEN_WIDTH / 2 - 110, SCREEN_HEIGHT / 2 + 20, 20, DARKGRAY);
+        // Game Over Icon Centered
+        DrawTexture(gameOverIcon, SCREEN_WIDTH / 2 - gameOverIcon.width / 2, SCREEN_HEIGHT / 2 - 100, WHITE);
+        DrawTexture(restartIcon, SCREEN_WIDTH / 2 - restartIcon.width / 2, SCREEN_HEIGHT / 2, WHITE);
+        DrawText("Press R to Restart", SCREEN_WIDTH / 2 - 110, SCREEN_HEIGHT / 2 + restartIcon.height + 10, 20, DARKGRAY);
+    }
+
+    if (paused)
+    {
+        DrawTexture(pauseIcon, SCREEN_WIDTH / 2 - pauseIcon.width / 2, SCREEN_HEIGHT / 2 - 100, WHITE);
+        DrawText("Press P to Resume", SCREEN_WIDTH / 2 - 110, SCREEN_HEIGHT / 2 + pauseIcon.height - 10, 20, DARKGRAY);
     }
 }
 
 int main()
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Flappy Bird Clone - Raylib");
-    birdTex = LoadTexture("bird.png");
+    birdTex = LoadTexture("Flappy Bird.jpeg");
     bgTex = LoadTexture("background.jpg");
+    pipeTex = LoadTexture("pipe.png");
+    pauseIcon = LoadTexture("icon_pause.png");
+    restartIcon = LoadTexture("icon_restart.png");
+    gameOverIcon = LoadTexture("icon_gameover.png");
 
     SetTargetFPS(60);
     InitAudioDevice();
@@ -326,6 +367,10 @@ int main()
     UnloadSound(hitSound);
     UnloadSound(dieSound);
     CloseAudioDevice();
+    UnloadTexture(pauseIcon);
+    UnloadTexture(restartIcon);
+    UnloadTexture(gameOverIcon);
+    UnloadTexture(pipeTex);
     CloseWindow();
     return 0;
 }
